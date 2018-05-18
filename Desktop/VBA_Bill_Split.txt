@@ -1,0 +1,76 @@
+Private Sub CommandButton1_Click()
+
+
+Dim LastRow As Long, ws As Worksheet
+
+Set ws = Sheets("Hydro")
+
+LastRow = ws.Range("J" & Rows.Count).End(xlUp).Row + 1
+
+ws.Range("J" & LastRow).Value = TextBox1.Text
+ws.Range("K" & LastRow).Value = TextBox2.Text
+
+
+
+
+Dim CDO_Mail As Object
+Dim CDO_Config As Object
+Dim SMTP_Config As Variant
+Dim strSubject As String
+Dim strFrom As String
+Dim strTo As String
+Dim strCc As String
+Dim strBcc As String
+Dim strBody As String
+
+strSubject = "Hydro Bill | " & ws.Range("J" & LastRow).Value
+strFrom = "email"
+strTo = "email"
+strCc = ""
+strBcc = ""
+strBody = "The Hydro Bill for the month of " & ws.Range("J" & LastRow).Value & " is " & ws.Range("K" & LastRow).Value & "$." & vbNewLine & "Please send the above amount to garvandoyle@gmail.com"
+
+Set CDO_Mail = CreateObject("CDO.Message")
+On Error GoTo Error_Handling
+
+Set CDO_Config = CreateObject("CDO.Configuration")
+CDO_Config.Load -1
+
+Set SMTP_Config = CDO_Config.Fields
+
+With SMTP_Config
+ .Item("http://schemas.microsoft.com/cdo/configuration/sendusing") = 2
+ .Item("http://schemas.microsoft.com/cdo/configuration/smtpserver") = "smtp.gmail.com"
+ .Item("http://schemas.microsoft.com/cdo/configuration/smtpauthenticate") = 1
+ .Item("http://schemas.microsoft.com/cdo/configuration/sendusername") = "email"
+ .Item("http://schemas.microsoft.com/cdo/configuration/sendpassword") = "password"
+ .Item("http://schemas.microsoft.com/cdo/configuration/smtpserverport") = serverport
+ .Item("http://schemas.microsoft.com/cdo/configuration/smtpusessl") = True
+ .Update
+End With
+
+With CDO_Mail
+ Set .Configuration = CDO_Config
+End With
+
+CDO_Mail.Subject = strSubject
+CDO_Mail.From = strFrom
+CDO_Mail.To = strTo
+CDO_Mail.TextBody = strBody
+CDO_Mail.CC = strCc
+CDO_Mail.BCC = strBcc
+CDO_Mail.Send
+
+Error_Handling:
+If Err.Description <> "" Then MsgBox Err.Description
+
+Unload Me
+End Sub
+
+Private Sub TextBox1_Change()
+
+End Sub
+
+Private Sub UserForm_Click()
+
+End Sub
